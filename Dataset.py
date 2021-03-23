@@ -1,7 +1,10 @@
-# Copyright 2021 by YoungWoon Cho
+# Copyright 2021 by YoungWoong Cho
 # The Cooper Union for the Advancement of Science and Art
 # ECE471 Machine Learning Architecture
 # Project 2: Discovery
+"""
+This is a helper class that handles the dataset.
+"""
 
 from PIL import Image
 from torch.utils.data import Dataset
@@ -22,6 +25,7 @@ class FurnitureDataset(Dataset):
 			self.dataset = pd.read_csv(os.path.join(self.root_dir, 'metadata', f'{furniture_type}.txt'), delimiter='\t', header=None)
 			self.dataset = self.dataset.dropna(axis=1, how='all')
 			self.dataset.columns = ['style', 'filename', 'metadata']
+
 			print(f'{furniture_type} dataset loaded successfully.')
 		else: print(f'ERROR: {furniture_type} dataset not found. Please check if the name is correct.')
 
@@ -31,6 +35,13 @@ class FurnitureDataset(Dataset):
 	def __getitem__(self, idx):
 		image_path = os.path.join(self.root_dir, list(self.dataset['filename'])[idx])
 		image = Image.open(image_path).resize((self.img_size, self.img_size))
+
+		# transform = transforms.Compose([
+		# 	transforms.Resize(self.img_size),
+		# 	transforms.ToTensor(),
+		# 	transforms.Normalize(mean=(0.5,), std=(0.5,))
+		# 	])
+		# image = transform(image)
 		image = transforms.ToTensor()(image)
 		sample = {'item': image, 'type': self.furniture_type}
 		return sample

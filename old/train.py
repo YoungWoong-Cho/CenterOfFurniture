@@ -13,8 +13,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 def main():
-	print(torch.__version__)
-
 	# Define arguments
 	parser = argparse.ArgumentParser(description="This is a pytorch implementation of VAE. Please refer to the following arguments.")
 	parser.add_argument('--batch_size', default=1, type=int, help='Size of a mini-batch. Default: 1')
@@ -40,16 +38,14 @@ def main():
 	# Prepare model
 	# encoder = Encoder(encoding_dim=args.encoding_dim, img_size=img_size).to(device)
 	# decoder = Decoder(encoding_dim=args.encoding_dim, img_size=img_size).to(device)
-	# encoder = VAE_encoder(encoding_dim=args.encoding_dim, img_size=img_size).to(device)
-	# decoder = VAE_decoder(encoding_dim=args.encoding_dim, img_size=img_size).to(device)
-	# model = ConvAE(encoding_dim=args.encoding_dim).to(device)
-	encoder = ConvAE_encoder(encoding_dim=args.encoding_dim).to(device)
-	decoder = ConvAE_decoder(encoding_dim=args.encoding_dim).to(device)
+	model = VariationalAutoEncoder(encoding_dim=args.encoding_dim, img_size=img_size).to(device)
 
 	# Optimizer
-	optimizer_encoder = torch.optim.Adam(encoder.parameters())
-	optimizer_decoder = torch.optim.Adam(decoder.parameters())
-	# optimizer = torch.optim.Adam(model.parameters())
+	# optimizer_encoder = torch.optim.Adam(encoder.parameters())
+	# optimizer_decoder = torch.optim.Adam(decoder.parameters())
+	optimizer = torch.optim.Adam(model.parameters())
+
+	loss_function = VAELoss()
 
 	# Train
 	for epoch in range(0, args.epochs):
@@ -58,29 +54,31 @@ def main():
 			progress = tqdm(enumerate(dataloader), total=len(dataloader))
 			for i, data in progress:
 				data = data['item'].to(device)
-				#data = data.view(data.shape[0], -1)
+				data = data.view(data.shape[0], -1)
 
 				# Forward pass
-				data_encoded = encoder(data)
-				data_decoded = decoder(data_encoded)
-				# data_reconst = model(data)
+				# data_encoded = encoder(data)
+				# data_decoded = decoder(data_encoded)
+				recon_batch, mu, log_var = model(data)
+
+				print(recon_batch)
 
 				# Find loss
 				# loss = F.binary_cross_entropy(data_decoded, data)
-				# reconst_loss = ((data - data_decoded)**2).sum()
+				# reconst_loss = F.binary_cross_entropy(data_decoded, data)
 				# kl_div = encoder.kl_div
 				# loss = reconst_loss + kl_div
-				loss = F.mse_loss(data, data_decoded)
+				loss = loss_function(data, mu, log_var, recon_batch).to(device)
 
 				# Back propagation and optimization
-				optimizer_encoder.zero_grad()
-				optimizer_decoder.zero_grad()
-				loss.backward()
-				optimizer_encoder.step()
-				optimizer_decoder.step()
-				# optimizer.zero_grad()
+				# optimizer_encoder.zero_grad()
+				# optimizer_decoder.zero_grad()
 				# loss.backward()
-				# optimizer.step()
+				# optimizer_encoder.step()
+				# optimizer_decoder.step()
+				optimizer.zero_grad()
+				loss.backward()
+				optimizer.step()
 
 				# Verbose
 				progress.set_description(
