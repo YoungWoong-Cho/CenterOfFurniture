@@ -38,13 +38,13 @@ def main():
 		filename = furniture_type if len(filename) ==0 else filename + '_' + furniture_type
 
 	# Prepare model
-	# encoder = Encoder(encoding_dim=args.encoding_dim, img_size=img_size).to(device)
-	# decoder = Decoder(encoding_dim=args.encoding_dim, img_size=img_size).to(device)
+	encoder = Encoder(encoding_dim=args.encoding_dim, img_size=img_size).to(device)
+	decoder = Decoder(encoding_dim=args.encoding_dim, img_size=img_size).to(device)
 	# encoder = VAE_encoder(encoding_dim=args.encoding_dim, img_size=img_size).to(device)
 	# decoder = VAE_decoder(encoding_dim=args.encoding_dim, img_size=img_size).to(device)
 	# model = ConvAE(encoding_dim=args.encoding_dim).to(device)
-	encoder = ConvAE_encoder(encoding_dim=args.encoding_dim).to(device)
-	decoder = ConvAE_decoder(encoding_dim=args.encoding_dim).to(device)
+	# encoder = ConvAE_encoder(encoding_dim=args.encoding_dim).to(device)
+	# decoder = ConvAE_decoder(encoding_dim=args.encoding_dim).to(device)
 
 	# Optimizer
 	optimizer_encoder = torch.optim.Adam(encoder.parameters())
@@ -58,7 +58,7 @@ def main():
 			progress = tqdm(enumerate(dataloader), total=len(dataloader))
 			for i, data in progress:
 				data = data['item'].to(device)
-				#data = data.view(data.shape[0], -1)
+				data = data.view(data.shape[0], -1)
 
 				# Forward pass
 				data_encoded = encoder(data)
@@ -66,11 +66,11 @@ def main():
 				# data_reconst = model(data)
 
 				# Find loss
-				# loss = F.binary_cross_entropy(data_decoded, data)
+				loss = F.binary_cross_entropy(data_decoded, data)
 				# reconst_loss = ((data - data_decoded)**2).sum()
 				# kl_div = encoder.kl_div
 				# loss = reconst_loss + kl_div
-				loss = F.mse_loss(data, data_decoded)
+				# loss = F.mse_loss(data, data_decoded)
 
 				# Back propagation and optimization
 				optimizer_encoder.zero_grad()
