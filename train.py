@@ -1,7 +1,7 @@
 # Copyright 2021 by YoungWoong Cho
 # The Cooper Union for the Advancement of Science and Art
 # ECE471 Machine Learning Architecture
-# Project 2: Discovery
+# Project 2: Center of Furniture
 
 from dataset import FurnitureDataset
 from models import *
@@ -40,21 +40,14 @@ def main():
 	# Prepare model
 	encoder = Encoder(encoding_dim=args.encoding_dim, img_size=img_size).to(device)
 	decoder = Decoder(encoding_dim=args.encoding_dim, img_size=img_size).to(device)
-	# encoder = VAE_encoder(encoding_dim=args.encoding_dim, img_size=img_size).to(device)
-	# decoder = VAE_decoder(encoding_dim=args.encoding_dim, img_size=img_size).to(device)
-	# model = ConvAE(encoding_dim=args.encoding_dim).to(device)
-	# encoder = ConvAE_encoder(encoding_dim=args.encoding_dim).to(device)
-	# decoder = ConvAE_decoder(encoding_dim=args.encoding_dim).to(device)
 
 	# Optimizer
 	optimizer_encoder = torch.optim.Adam(encoder.parameters())
 	optimizer_decoder = torch.optim.Adam(decoder.parameters())
-	# optimizer = torch.optim.Adam(model.parameters())
 
 	# Train
 	for epoch in range(0, args.epochs):
 		for dataloader in furniture_dataloader:
-			#print(type(dataloader))
 			progress = tqdm(enumerate(dataloader), total=len(dataloader))
 			for i, data in progress:
 				data = data['item'].to(device)
@@ -63,14 +56,9 @@ def main():
 				# Forward pass
 				data_encoded = encoder(data)
 				data_decoded = decoder(data_encoded)
-				# data_reconst = model(data)
 
 				# Find loss
-				loss = F.binary_cross_entropy(data_decoded, data)
-				# reconst_loss = ((data - data_decoded)**2).sum()
-				# kl_div = encoder.kl_div
-				# loss = reconst_loss + kl_div
-				# loss = F.mse_loss(data, data_decoded)
+				loss = F.mse_loss(data, data_decoded)
 
 				# Back propagation and optimization
 				optimizer_encoder.zero_grad()
@@ -78,9 +66,6 @@ def main():
 				loss.backward()
 				optimizer_encoder.step()
 				optimizer_decoder.step()
-				# optimizer.zero_grad()
-				# loss.backward()
-				# optimizer.step()
 
 				# Verbose
 				progress.set_description(

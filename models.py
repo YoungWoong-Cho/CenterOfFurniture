@@ -82,7 +82,6 @@ class VAE_encoder(nn.Module):
 		sigma = torch.exp(self.fc3(x))
 		z = mu + sigma*self.N.sample(mu.shape)
 		self.kl_div = (sigma**2 + mu**2 - torch.log(sigma) - 1/2).sum()
-		#self.kl_div = -0.5*torch.sum(1+torch.log(sigma)-mu**2-sigma)
 		return z
 
 class VAE_decoder(nn.Module):

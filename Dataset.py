@@ -35,26 +35,6 @@ class FurnitureDataset(Dataset):
 	def __getitem__(self, idx):
 		image_path = os.path.join(self.root_dir, list(self.dataset['filename'])[idx])
 		image = Image.open(image_path).resize((self.img_size, self.img_size))
-
-		# transform = transforms.Compose([
-		# 	transforms.Resize(self.img_size),
-		# 	transforms.ToTensor(),
-		# 	transforms.Normalize(mean=(0.5,), std=(0.5,))
-		# 	])
-		# image = transform(image)
 		image = transforms.ToTensor()(image)
 		sample = {'item': image, 'type': self.furniture_type}
 		return sample
-
-
-# if __name__ == '__main__':
-# 	bed_dataset = FurnitureDataset('dressers')
-
-# 	plt.figure(figsize=(10, 10))
-# 	for i in range(16):
-# 		plt.subplot(4, 4, i + 1)
-# 		plt.xticks([]); plt.yticks([])
-# 		plt.imshow(bed_dataset[i]['item'])
-# 		plt.title(bed_dataset[i]['type'])
-
-# 	plt.show()
